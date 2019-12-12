@@ -26,7 +26,7 @@ class Board:
         if winner is player:
             return 10
         elif winner
-    # set method and handle _
+    # todo: add set method, handle _, and to_str
     def _enemy(self, player):
         if player is "X":
             return "O":
