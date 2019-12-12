@@ -19,7 +19,7 @@ async def hi(ctx):
 
 @client.command(pass_context=True)
 async def halpme(ctx):
-    help_msg = ("**Usage:** !masq [command] [arguments]\n\n"
+    help_msg = ("**Usage:** !masq [command] [optional arguments]\n\n"
                  "**List of commands:**\n\n"
                  "`hi` Sends me a 'hi' message\n"
                  "`halpme` Displays this info\n"
