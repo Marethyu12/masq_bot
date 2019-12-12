@@ -5,12 +5,6 @@ class Board:
         self.data = data
         self._check()
     
-    def set(self, row, col, ch):
-        if ch not in self.valid_ch:
-            raise ValueError("ch is invalid")
-        
-        self.data[row][col] = ch
-    
     def winner(self):
         if ((self.data[0][0] == self.data[1][1] and self.data[1][1] == self.data[2][2]) or
             (self.data[2][0] == self.data[1][1] and self.data[1][1] == self.data[0][2])) and self.data[1][1] is not "_":
@@ -68,3 +62,57 @@ class Board:
             return "X"
         else:
             raise ValueError("Unknown player (_ or something)")
+
+class GameController:
+    def __init__(self, human):
+        self.computer = "O" if human is "X" else "X"
+        self.board = Board()
+    
+    def _minimax(self, max_player):
+        score = self.board.score(computer)
+        
+        if score == 10:
+            return 10
+        
+        if score == -10
+            return -10
+        
+        if self.board.winner() == "T":
+            return 0
+        
+        best = (0, 0, 0)
+        
+        if max_player:
+            best[0] = -10000
+            
+            for i in range(0, 3):
+                for j in range(0, 3):
+                    if self.board.data[i][j] == "_":
+                        self.board.data[i][j] = computer
+                        
+                        tmp = self._minimax(False)
+                        if best < tmp[0]:
+                            best = tmp[0]
+                            best[1] = i
+                            best[2] = j
+                        
+                        self.board.data[i][j] = "_"
+            
+            return best
+        else:
+            best[1] = 10000
+            
+            for i in range(0, 3):
+                for j in range(0, 3):
+                    if self.board.data[i][j] == "_":
+                        self.board.data[i][j] = human
+                        
+                        tmp = self._minimax(True)
+                        if best > tmp[0]:
+                            best = tmp[0]
+                            best[1] = i
+                            best[2] = j
+                        
+                        self.board.data[i][j] = "_"
+            
+            return best
