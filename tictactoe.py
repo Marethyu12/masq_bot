@@ -1,3 +1,8 @@
+class MoveError(Exception):
+    def __init__(self, message, errors):
+        super(MoveError, self).__init__(message)
+        self.errors = errors
+
 class Board:
     valid_ch = ["X", "O", "_"]
     
@@ -65,54 +70,78 @@ class Board:
 
 class GameController:
     def __init__(self, human):
+        self.human = human
         self.computer = "O" if human is "X" else "X"
         self.board = Board()
     
+    def make_move(self, row, col):
+        if self.board.data[row][col] is not "_":
+            raise MoveError("This space is already occupied")
+        
+        self.board.data[row][col] = self.human
+        
+        cmpt_mv = self._minimax(True)[1]
+        
+        if cmpt_mv is not None:
+            self.board.data[cmpt_mv[0]][cmpt_mv[1]] = self.computer
+    
     def _minimax(self, max_player):
-        score = self.board.score(computer)
+        score = self.board.score(self.computer)
         
         if score == 10:
-            return 10
+            return (10, None)
         
-        if score == -10
-            return -10
+        if score == -10:
+            return (-10, None)
         
         if self.board.winner() == "T":
-            return 0
+            return (0, None)
         
-        best = (0, 0, 0)
+        best_val = 0
+        best_mv = [0, 0]
         
         if max_player:
-            best[0] = -10000
+            best_val = -10000
             
             for i in range(0, 3):
                 for j in range(0, 3):
                     if self.board.data[i][j] == "_":
-                        self.board.data[i][j] = computer
+                        self.board.data[i][j] = self.computer
                         
                         tmp = self._minimax(False)
-                        if best < tmp[0]:
-                            best = tmp[0]
-                            best[1] = i
-                            best[2] = j
+                        if best_val < tmp[0]:
+                            best_val = tmp[0]
+                            best_mv[0] = i
+                            best_mv[1] = j
                         
                         self.board.data[i][j] = "_"
             
-            return best
+            return (best_val, best_mv)
         else:
-            best[1] = 10000
+            best_mv[1] = 10000
             
             for i in range(0, 3):
                 for j in range(0, 3):
                     if self.board.data[i][j] == "_":
-                        self.board.data[i][j] = human
+                        self.board.data[i][j] = self.human
                         
                         tmp = self._minimax(True)
-                        if best > tmp[0]:
-                            best = tmp[0]
-                            best[1] = i
-                            best[2] = j
+                        if best_val > tmp[0]:
+                            best_val = tmp[0]
+                            best_mv[0] = i
+                            best_mv[1] = j
                         
                         self.board.data[i][j] = "_"
             
-            return best
+            return (best_val, best_mv)
+
+if __name__ == "__main__":
+    controller = GameController("X")
+    
+    while True:
+        print(controller.board)
+        print("Enter move:")
+        
+        row, col = map(int, input().split())
+        
+        controller.make_move(row, col)
