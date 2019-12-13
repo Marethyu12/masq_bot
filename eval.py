@@ -97,9 +97,9 @@ class MiniLexer:
         for func in supported_funcs:
             self.ht[func] = Token(TokType.FUNCTION, func)
 
-class BinaryExpr:
-    def __init__(self, left, right, op):
-        pass # TODO
+class Expression:
+    def __init__(self):
+        pass
 
 class ExpressionParser:
     def __init__(self, expr):
@@ -107,8 +107,8 @@ class ExpressionParser:
         self.look = None
         self._next()
     
-    def eval_expr():
-        pass # TODO
+    def eval_expr(self):
+        pass
     
     def _next(self):
         self.look = self.lex.scan()
