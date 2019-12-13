@@ -40,6 +40,7 @@ class MiniLexer:
     def scan(self):
         while self.expr[self.idx] == " ":
             self.idx += 1
+        self.peek = self.expr[self.idx]
         
         if self.peek in ["+", "-", "*", "/"]:
             return Token(TokType.OPERATOR, self.peek)
