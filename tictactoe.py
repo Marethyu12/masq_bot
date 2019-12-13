@@ -91,40 +91,20 @@ class GameController:
         if depth == self.max_depth:
             return (0, None)
         
-        best_val = 0
+        best_val = -10000 if max_player else 10000
         best_mv = [0, 0]
         
-        if max_player:
-            best_val = -10000
-            
-            for i in range(0, 3):
-                for j in range(0, 3):
-                    if self.board.data[i][j] == "_":
-                        self.board.data[i][j] = self.computer
-                        
-                        tmp = self._minimax(False, depth + 1)
-                        if best_val < tmp[0]:
-                            best_val = tmp[0]
-                            best_mv[0] = i
-                            best_mv[1] = j
-                        
-                        self.board.data[i][j] = "_"
-            
-            return (best_val, best_mv)
-        else:
-            best_mv[1] = 10000
-            
-            for i in range(0, 3):
-                for j in range(0, 3):
-                    if self.board.data[i][j] == "_":
-                        self.board.data[i][j] = self.human
-                        
-                        tmp = self._minimax(True, depth + 1)
-                        if best_val > tmp[0]:
-                            best_val = tmp[0]
-                            best_mv[0] = i
-                            best_mv[1] = j
-                        
-                        self.board.data[i][j] = "_"
-            
-            return (best_val, best_mv)
+        for i in range(0, 3):
+            for j in range(0, 3):
+                if self.board.data[i][j] == "_":
+                    self.board.data[i][j] = self.computer if max_player else self.human
+                    
+                    tmp = self._minimax(False if max_player else True, depth + 1)
+                    if (max_player and best_val < tmp[0]) or (not max_player and best_val > tmp[0]):
+                        best_val = tmp[0]
+                        best_mv[0] = i
+                        best_mv[1] = j
+                    
+                    self.board.data[i][j] = "_"
+        
+        return (best_val, best_mv)
