@@ -1,14 +1,8 @@
-class MoveError(Exception):
-    def __init__(self, message, errors):
-        super(MoveError, self).__init__(message)
-        self.errors = errors
-
 class Board:
     valid_ch = ["X", "O", "_"]
     
     def __init__(self, data=[["_"] * 3 for i in range(0, 3)]):
         self.data = data
-        self._check()
     
     def winner(self):
         if ((self.data[0][0] == self.data[1][1] and self.data[1][1] == self.data[2][2]) or
@@ -43,22 +37,13 @@ class Board:
             return 0
     
     def __str__(self):
-        return ("-------------\n"
-                "| " + self.data[0][0] + " | " + self.data[0][1] + " | " + self.data[0][2] + " |\n"
-                "-------------\n"
-                "| " + self.data[1][0] + " | " + self.data[1][1] + " | " + self.data[1][2] + " |\n"
-                "-------------\n"
-                "| " + self.data[2][0] + " | " + self.data[2][1] + " | " + self.data[2][2] + " |\n"
-                "-------------\n")
-    
-    def _check(self):
-        if len(self.data) is not 3 or len(self.data[0]) is not 3:
-            raise ValueError("data isn't a 3x3 matrix")
-        
-        for i in range(0, 3):
-            for j in range(0, 3):
-                if self.data[i][j] not in self.valid_ch:
-                    raise ValueError("The one of characters in data is not recognized")
+        return ("`-------------`\n"
+                "`| " + self.data[0][0] + " | " + self.data[0][1] + " | " + self.data[0][2] + " |`\n"
+                "`-------------`\n"
+                "`| " + self.data[1][0] + " | " + self.data[1][1] + " | " + self.data[1][2] + " |`\n"
+                "`-------------`\n"
+                "`| " + self.data[2][0] + " | " + self.data[2][1] + " | " + self.data[2][2] + " |`\n"
+                "`-------------`\n")
     
     def _enemy(self, player):
         if player is "X":
@@ -77,9 +62,6 @@ class GameController:
         self.game_over = False
     
     def make_move(self, row, col):
-        if self.board.data[row][col] is not "_":
-            raise MoveError("This space is already occupied")
-        
         self.board.data[row][col] = self.human
         
         cmpt_mv = self._minimax(True)[1]
@@ -148,25 +130,3 @@ class GameController:
                         self.board.data[i][j] = "_"
             
             return (best_val, best_mv)
-
-if __name__ == "__main__":
-    controller = GameController("X", 4)
-    
-    print(controller.board)
-    
-    while not controller.game_over:
-        print("Enter move:")
-        
-        row, col = map(int, input().split())
-        controller.make_move(row, col)
-        
-        val = controller.check_win()
-        over = False
-        
-        if val is not None:
-            if val == "T":
-                print("Tie!")
-            else:
-                print(val + " wins!")
-        
-        print(controller.board)

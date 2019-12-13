@@ -1,3 +1,4 @@
+import asyncio
 import discord
 import requests
 
@@ -49,8 +50,67 @@ async def tdynws(ctx):
             continue
 
 @client.command(pass_context=True)
-async def tictactoe(ctx, args):
-    await ctx.send(args)
+async def tictactoe(ctx, arg):
+    difficulty = int(arg)
+    
+    if difficulty < 1 or difficulty > 4:
+        await ctx.send("The difficulty is out of range please try again")
+        return
+    
+    gc = GameController("X", difficulty)
+    
+    await ctx.send("**GAME START!**\n_ _")
+    await ctx.send("To enter your move, input it in this format: `[row] [col]` Note that the index of the top left square is `(0, 0)` and the index of the bottom right square is `(2, 2)`\nYou have a minute to make a move\nType \"I QUIT!\" to quit the game!\n_ _")
+    await ctx.send(gc.board)
+    
+    def check(author):
+        def inner_check(message):
+            if message.author != author:
+                return False
+            try:
+                inpt = message.content
+                
+                if inpt == "I QUIT!":
+                    return True
+                
+                if len(inpt) is not 3:
+                    return False
+                
+                r, c = int(inpt[0]), int(inpt[2])
+                
+                if r < 0 or r > 2 or c < 0 or c > 2:
+                    return False
+                
+                return True
+            except:
+                return False
+        return inner_check
+    
+    while not gc.game_over:
+        try:
+            await ctx.send("_ _\nEnter your move:")
+            
+            msg = await client.wait_for('message', check=check(ctx.author), timeout=60)
+            
+            if msg.content == "I QUIT!":
+                break
+            
+            row, col = int(msg.content[0]), int(msg.content[2])
+            gc.make_move(row, col)
+            
+            val = gc.check_win()
+            
+            if val is not None:
+                if val == "T":
+                    await ctx.send("Tie!\n_ _")
+                else:
+                    await ctx.send(val + " wins!\n_ _")
+            
+            await ctx.send(gc.board)
+        except asyncio.TimeoutError:
+            break
+    
+    await ctx.send("_ _\n**GAME OVER!**")
 
 @client.command(pass_context=True)
 async def potassium(ctx):
@@ -60,7 +120,7 @@ async def potassium(ctx):
     else:
         await ctx.send("Goodbye! Oh wait... you're not Jimmy so never mind")
 
-# TODO: math eval, random art, background task run, and feature request
+# TODO: math eval, random art, background task run, bot description, and feature request
 
 @client.event
 async def on_ready():
