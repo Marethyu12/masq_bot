@@ -1,6 +1,4 @@
 class Board:
-    valid_ch = ["X", "O", "_"]
-    
     def __init__(self, data=[["_"] * 3 for i in range(0, 3)]):
         self.data = data
     
