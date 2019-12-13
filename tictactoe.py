@@ -69,10 +69,12 @@ class Board:
             raise ValueError("Unknown player (_ or something)")
 
 class GameController:
-    def __init__(self, human):
+    def __init__(self, human, difficulty):
         self.human = human
         self.computer = "O" if human is "X" else "X"
+        self.max_depth = (2 ** difficulty) // 2
         self.board = Board()
+        self.game_over = False
     
     def make_move(self, row, col):
         if self.board.data[row][col] is not "_":
@@ -85,7 +87,16 @@ class GameController:
         if cmpt_mv is not None:
             self.board.data[cmpt_mv[0]][cmpt_mv[1]] = self.computer
     
-    def _minimax(self, max_player):
+    def check_win(self):
+        status = self.board.winner()
+        
+        if status is not "N":
+            self.game_over = True
+            return status
+        else:
+            return None
+    
+    def _minimax(self, max_player, depth=0):
         score = self.board.score(self.computer)
         
         if score == 10:
@@ -95,6 +106,9 @@ class GameController:
             return (-10, None)
         
         if self.board.winner() == "T":
+            return (0, None)
+        
+        if depth == self.max_depth:
             return (0, None)
         
         best_val = 0
@@ -108,7 +122,7 @@ class GameController:
                     if self.board.data[i][j] == "_":
                         self.board.data[i][j] = self.computer
                         
-                        tmp = self._minimax(False)
+                        tmp = self._minimax(False, depth + 1)
                         if best_val < tmp[0]:
                             best_val = tmp[0]
                             best_mv[0] = i
@@ -125,7 +139,7 @@ class GameController:
                     if self.board.data[i][j] == "_":
                         self.board.data[i][j] = self.human
                         
-                        tmp = self._minimax(True)
+                        tmp = self._minimax(True, depth + 1)
                         if best_val > tmp[0]:
                             best_val = tmp[0]
                             best_mv[0] = i
@@ -136,12 +150,23 @@ class GameController:
             return (best_val, best_mv)
 
 if __name__ == "__main__":
-    controller = GameController("X")
+    controller = GameController("X", 4)
     
-    while True:
-        print(controller.board)
+    print(controller.board)
+    
+    while not controller.game_over:
         print("Enter move:")
         
         row, col = map(int, input().split())
-        
         controller.make_move(row, col)
+        
+        val = controller.check_win()
+        over = False
+        
+        if val is not None:
+            if val == "T":
+                print("Tie!")
+            else:
+                print(val + " wins!")
+        
+        print(controller.board)
