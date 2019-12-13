@@ -49,7 +49,7 @@ class Board:
         elif player is "O":
             return "X"
         else:
-            raise ValueError("Unknown player (_ or something)")
+            return "_"
 
 class GameController:
     def __init__(self, human, difficulty):
