@@ -1,5 +1,5 @@
 class Board:
-    def __init__(self, data=[["_"] * 3 for i in range(0, 3)]):
+    def __init__(self, data=[["_"] * 3 for i in range(3)]):
         self.data = data
     
     def winner(self):
@@ -7,18 +7,18 @@ class Board:
             (self.data[2][0] == self.data[1][1] and self.data[1][1] == self.data[0][2])) and self.data[1][1] is not "_":
             return self.data[1][1]
         
-        for i in range(0, 3):
+        for i in range(3):
             if self.data[i][0] == self.data[i][1] and self.data[i][1] == self.data[i][2] and self.data[i][0] is not "_":
                 return self.data[i][0]
         
-        for j in range(0, 3):
+        for j in range(3):
             if self.data[0][j] == self.data[1][j] and self.data[1][j] == self.data[2][j] and self.data[0][j] is not "_":
                 return self.data[0][j]
         
         b = True
         
-        for i in range(0, 3):
-            for j in range(0, 3):
+        for i in range(3):
+            for j in range(3):
                 if self.data[i][j] == "_":
                     b = False
         
@@ -33,6 +33,11 @@ class Board:
             return -10
         else:
             return 0
+    
+    def reset(self):
+        for i in range(3):
+            for j in range(3):
+                self.data[i][j] = "_"
     
     def __str__(self):
         return ("`-------------`\n"
@@ -94,8 +99,8 @@ class GameController:
         best_val = -10000 if max_player else 10000
         best_mv = [0, 0]
         
-        for i in range(0, 3):
-            for j in range(0, 3):
+        for i in range(3):
+            for j in range(3):
                 if self.board.data[i][j] == "_":
                     self.board.data[i][j] = self.computer if max_player else self.human
                     

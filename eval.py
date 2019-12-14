@@ -32,23 +32,29 @@ class Token:
 class MiniLexer:
     def __init__(self, expr):
         self.expr = expr
-        self.idx = 0
-        self.peek = " "
+        self.idx = -1
+        self.peek = None
         self.ht = {}
         self._init_dict()
+        self._advance()
+        self.done = False
     
     def scan(self):
+        if self.done:
+            return
+        
         while self.expr[self.idx] == " ":
             self.idx += 1
         self.peek = self.expr[self.idx]
         
         if self.peek in ["+", "-", "*", "/"]:
-            return Token(TokType.OPERATOR, self.peek)
+            token = Token(TokType.OPERATOR, self.peek)
+            self._advance()
+            return token
         
         if self.peek.isdigit():
-            value = float(self.peek)
-            self._advance()
-            
+            value = 0.0
+             
             while self.peek.isdigit():
                 value = 10 * value + float(self.peek)
                 self._advance()
@@ -70,29 +76,38 @@ class MiniLexer:
             return Token(TokType.REAL_NUM, str(value))
         
         if self.peek.isidentifier():
-            func = self.peek
-            self._advance()
+            func = ""
             
             while self.peek.isidentifier():
                 func += self.peek
                 self._advance()
             
-            if func in ht:
-                return ht[func]
+            if func in self.ht:
+                return self.ht[func]
             
             return Token(TokType.UNK_FUNC, func)
         
         if self.peek is "(":
-            return Token(TokType.LBRACKET, self.peek)
+            token = Token(TokType.LBRACKET, self.peek)
+            self._advance()
+            return token
         
         if self.peek is ")":
-            return Token(TokType.RBRACKET, self.peek)
+            token = Token(TokType.RBRACKET, self.peek)
+            self._advance()
+            return token
         
-        return Token(TokType.UNKNOWN, self.peek)
+        token = Token(TokType.UNKNOWN, self.peek)
+        self._advance()
+        
+        return token
     
     def _advance(self):
-        self.peek = self.expr[self.idx]
         self.idx += 1
+        if self.idx == len(self.expr):
+            self.done = True
+            return
+        self.peek = self.expr[self.idx]
     
     def _init_dict(self):
         for func in supported_funcs:

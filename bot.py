@@ -50,7 +50,10 @@ async def tdynws(ctx):
             continue
 
 @client.command(pass_context=True)
-async def tictactoe(ctx, arg):
+async def tictactoe(ctx, arg=None):
+    if arg is None:
+        return
+    
     difficulty = int(arg)
     
     if difficulty < 1 or difficulty > 4:
@@ -109,6 +112,8 @@ async def tictactoe(ctx, arg):
             await ctx.send(gc.board)
         except asyncio.TimeoutError:
             break
+    
+    gc.board.reset()
     
     await ctx.send("_ _\n**GAME OVER!**")
 
