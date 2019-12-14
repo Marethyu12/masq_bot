@@ -67,7 +67,7 @@ class GameController:
     def make_move(self, row, col):
         self.board.data[row][col] = self.human
         
-        cmpt_mv = self._minimax(True)[1]
+        cmpt_mv = self._minimax()[1]
         
         if cmpt_mv is not None:
             self.board.data[cmpt_mv[0]][cmpt_mv[1]] = self.computer
@@ -81,7 +81,8 @@ class GameController:
         else:
             return None
     
-    def _minimax(self, max_player, depth=0):
+    # TODO: Implement Alpha Beta Pruning
+    def _minimax(self, max_player=True, depth=0):
         score = self.board.score(self.computer)
         
         if score == 10:
