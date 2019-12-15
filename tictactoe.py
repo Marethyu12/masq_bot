@@ -1,3 +1,5 @@
+__all__ == "GameController"
+
 class Board:
     def __init__(self, data=[["_"] * 3 for i in range(3)]):
         self.data = data
@@ -114,3 +116,36 @@ class GameController:
                     self.board.data[i][j] = "_"
         
         return (best_val, best_mv)
+
+if __name__ == "__main__":
+    print("*******************\nT I C  T A C  T O E\n*******************\n")
+    print("Do you want to play as X? (y/n)")
+    
+    resp = " "
+    while resp is not "y" and resp is not "n":
+        resp = input()
+    
+    print("Enter difficulty from 1 to 4 with 1 being easiest and 4 being hardest")
+    
+    difficulty = 0
+    while difficulty < 1 or difficulty > 4:
+        difficulty = int(input())
+    
+    controller = GameController("X" if resp is "y" else "O", difficulty)
+    
+    while not controller.game_over:
+        print(controller.board)
+        print("Enter your move in this format (0-based indexing): [row] [col]")
+        
+        row, col = -1, -1
+        while row not in [0, 1, 2] or col not in [0, 1, 2] or controller.board.data[row][col] is not "_":
+            row, col = map(int, input().split())
+        
+        controller.make_move(row, col)
+        winner = controller.check_win()
+        
+        if winner in ["X", "O", "T"]:
+            if winner is "T":
+                print("tie!")
+            else:
+                print(winner + " wins!")
