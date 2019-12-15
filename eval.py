@@ -147,7 +147,7 @@ class FunctionCall(Expression):
         import math
         return math.__dict__[self.fname](expr.reduce())
 
-class UnaryExpression(Expression):
+class UnaryOperator(Expression):
     def __init__(self, is_minus, expr):
         self.is_minus = is_minus
         self.expr = expr
@@ -156,7 +156,7 @@ class UnaryExpression(Expression):
         reduced_val = expr.reduce()
         return -reduced_val if is_minus else reduced_val
 
-def BinaryExpression(Expression):
+def BinaryOperator(Expression):
     def __init__(self, left, right, op):
         self.left = left
         self.right = right
@@ -172,19 +172,45 @@ def BinaryExpression(Expression):
         elif op == "/":
             return left.reduce() / right.reduce()
 
+class ParseError(Exception):
+    def __init__(self, message):
+        super(ParseError, self).__init__(message)
+
 class ExpressionParser:
     def __init__(self, expr):
         self.lex = MiniLexer(expr)
+        self.look = None
     
-    def parse(self, expr=None):
-        if expr is None:
-            expr = self.expr
+    def parse(self):
+        '''
+        BNF grammar for a math expression
         
-        while not self.lex.done:
-            token = self.lex.scan()
-            
-            if token.t_type is TokType.REAL_NUM:
-                next_tok = self.lex.scan()
-                
-                if next_tok.t_type is TokType.OPERATOR:
-                    return BinaryExpression(RealNumber(token.value), next_tok.value, parse()) # TODO
+        <mathexpression> ::= <term> "+" <mathexpression> |
+                         <term> "-" <mathexpression> |
+                         <term>
+        <term> ::= <expression> "*" <mathexpression> |
+                   <expression> "/" <mathexpression> |
+                   <expression>
+        <expression> ::= <realnumber> | <functioncall> | <unaryop> "("<expression>")" | "("<expression>")"
+        '''
+        return self._math_expr()
+    
+    def _math_expr(self):
+        pass
+    
+    def _term(self):
+        pass
+    
+    def _expr(self):
+        pass
+    
+    def _match(self, t_type):
+        if self.look.t_type is not t_type:
+            raise ParseError("There's some kind of problem in your input expression please try again")
+        else:
+            self._next()
+    
+    def _next(self):
+        if self.lex.done:
+            return
+        self.look = self.lex.scan()
