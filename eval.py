@@ -37,6 +37,7 @@ class MiniLexer:
         self.expr = expr
         self.idx = -1
         self.peek = None
+        self.prev_ttype = None
         self.ht = {}
         self._init_dict()
         self._advance()
@@ -53,9 +54,11 @@ class MiniLexer:
         if self.peek in ["+", "-", "*", "/"]:
             token = None
             
-            if self.expr[self.idx + 1] == "(" or self.expr[self.idx + 1].isalnum():
+            if (self.expr[self.idx + 1] == "(" or self.expr[self.idx + 1].isalnum()) and self.peek in ["+", "-"] and (self.prev_ttype is TokType.OPERATOR or self.prev_ttype is TokType.LBRACKET or self.prev_ttype is None):
+                self.prev_ttype = TokType.UNARY_OP
                 token = Token(TokType.UNARY_OP, self.peek)
             else:
+                self.prev_ttype = TokType.OPERATOR
                 token = Token(TokType.OPERATOR, self.peek)
             
             self._advance()
@@ -64,12 +67,13 @@ class MiniLexer:
         
         if self.peek.isdigit():
             value = 0.0
-             
+            
             while self.peek.isdigit():
                 value = 10 * value + float(self.peek)
                 self._advance()
             
             if self.peek is not ".":
+                self.prev_ttype = TokType.REAL_NUM
                 return Token(TokType.REAL_NUM, str(value))
             
             x = 10.0
@@ -83,6 +87,7 @@ class MiniLexer:
                 value += float(self.peek) / x
                 x *= 10.0
             
+            self.prev_ttype = TokType.REAL_NUM
             return Token(TokType.REAL_NUM, str(value))
         
         if self.peek.isalpha():
@@ -95,18 +100,22 @@ class MiniLexer:
             if func in self.ht:
                 return self.ht[func]
             
+            self.prev_ttype = TokType.UNK_FUNC
             return Token(TokType.UNK_FUNC, func)
         
         if self.peek is "(":
+            self.prev_ttype = TokType.LBRACKET
             token = Token(TokType.LBRACKET, self.peek)
             self._advance()
             return token
         
         if self.peek is ")":
+            self.prev_ttype = TokType.RBRACKET
             token = Token(TokType.RBRACKET, self.peek)
             self._advance()
             return token
         
+        self.prev_ttype = TokType.UNKNOWNT
         token = Token(TokType.UNKNOWNT, self.peek)
         self._advance()
         
@@ -115,7 +124,11 @@ class MiniLexer:
     def _advance(self):
         self.idx += 1
         if self.idx == len(self.expr):
+            self.peek = "_"
             self.done = True
+            return
+        elif self.idx > len(self.expr):
+            self.peek = "_"
             return
         self.peek = self.expr[self.idx]
     
@@ -123,7 +136,7 @@ class MiniLexer:
         for func in supported_funcs:
             self.ht[func] = Token(TokType.FUNCTION, func)
 
-class Expression(ABC):
+class ASTNode(ABC):
     def __init__(self):
         super.__init__()
     
@@ -131,86 +144,144 @@ class Expression(ABC):
     def reduce(self):
         pass
 
-class RealNumber(Expression):
+class RealNumber(ASTNode):
     def __init__(self, fvalue):
         self.fvalue = fvalue
     
     def reduce(self):
         return self.fvalue
 
-class FunctionCall(Expression):
+class FunctionCall(ASTNode):
     def __init__(self, fname, expr):
         self.fname = fname
         self.expr = expr
     
     def reduce(self):
         import math
-        return math.__dict__[self.fname](expr.reduce())
+        return math.__dict__[self.fname](self.expr.reduce())
 
-class UnaryOperator(Expression):
+class UnaryOperator(ASTNode):
     def __init__(self, is_minus, expr):
         self.is_minus = is_minus
         self.expr = expr
     
     def reduce(self):
-        reduced_val = expr.reduce()
-        return -reduced_val if is_minus else reduced_val
+        reduced_val = self.expr.reduce()
+        return -reduced_val if self.is_minus else reduced_val
 
-def BinaryOperator(Expression):
+class BinaryOperator(ASTNode):
     def __init__(self, left, right, op):
         self.left = left
         self.right = right
         self.op = op
     
     def reduce(self):
-        if op == "+":
-            return left.reduce() + right.reduce()
-        elif op == "-":
-            return left.reduce() - right.reduce()
-        elif op == "*":
-            return left.reduce() * right.reduce()
-        elif op == "/":
-            return left.reduce() / right.reduce()
+        if self.op == "+":
+            return self.left.reduce() + self.right.reduce()
+        elif self.op == "-":
+            return self.left.reduce() - self.right.reduce()
+        elif self.op == "*":
+            return self.left.reduce() * self.right.reduce()
+        elif self.op == "/":
+            return self.left.reduce() / self.right.reduce()
 
 class ParseError(Exception):
     def __init__(self, message):
         super(ParseError, self).__init__(message)
 
 class ExpressionParser:
-    def __init__(self, expr):
-        self.lex = MiniLexer(expr)
+    def __init__(self, lex):
+        self.lex = lex
         self.look = None
+        self._next()
     
     def parse(self):
         '''
         BNF grammar for a math expression
         
-        <mathexpression> ::= <term> "+" <mathexpression> |
-                         <term> "-" <mathexpression> |
+        <expression> ::= <term> "+" <term> |
+                         <term> "-" <term> |
                          <term>
-        <term> ::= <expression> "*" <mathexpression> |
-                   <expression> "/" <mathexpression> |
-                   <expression>
-        <expression> ::= <realnumber> | <functioncall> | <unaryop> "("<expression>")" | "("<expression>")"
+        <term> ::= <factor> "*" <factor> |
+                   <factor> "/" <factor> |
+                   <factor>
+        <factor> ::= <real number> | <function call> | <unary op> "(" <expression> ")" | "(" <expression> ")"
         '''
-        return self._math_expr()
-    
-    def _math_expr(self):
-        pass
-    
-    def _term(self):
-        pass
+        return self._expr().reduce()
     
     def _expr(self):
-        pass
+        expr = self._term()
+        
+        while self.look.t_type is TokType.OPERATOR and self.look.value in ["+", "-"]:
+            op = self.look.value
+            self._consume(TokType.OPERATOR)
+            expr = BinaryOperator(expr, self._term(), op)
+        
+        return expr
     
-    def _match(self, t_type):
-        if self.look.t_type is not t_type:
-            raise ParseError("There's some kind of problem in your input expression please try again")
+    def _term(self):
+        term = self._factor()
+        
+        while self.look.t_type is TokType.OPERATOR and self.look.value in ["*", "/"]:
+            op = self.look.value
+            self._consume(TokType.OPERATOR)
+            term = BinaryOperator(term, self._factor(), op)
+        
+        return term
+    
+    def _factor(self):
+        if self.look.t_type is TokType.REAL_NUM:
+            real_num = RealNumber(float(self.look.value))
+            self._consume(TokType.REAL_NUM)
+            return real_num
+        elif self.look.t_type is TokType.FUNCTION:
+            fcall = None
+            fname = self.look.value
+            
+            self._consume(TokType.FUNCTION)
+            self._consume(TokType.LBRACKET)
+            fcall = FunctionCall(fname, self._expr())
+            self._consume(TokType.RBRACKET)
+            
+            return fcall
+        elif self.look.t_type is TokType.UNARY_OP:
+            unary_op = None
+            is_minus = self.look.value is "-"
+            
+            self._consume(TokType.UNARY_OP)
+            
+            if self.look.t_type is TokType.LBRACKET:
+                self._consume(TokType.LBRACKET)
+                unary_op = UnaryOperator(is_minus, self._expr())
+                self._consume(TokType.RBRACKET)
+            elif self.look.t_type is TokType.FUNCTION:
+                fname = self.look.value
+                
+                self._consume(TokType.FUNCTION)
+                self._consume(TokType.LBRACKET)
+                unary_op = UnaryOperator(is_minus, FunctionCall(fname, self._expr()))
+                self._consume(TokType.RBRACKET)
+            else: # self.look.t_type is TokType.REAL_NUM
+                unary_op = UnaryOperator(is_minus, self._expr())
+            
+            return unary_op
+        elif self.look.t_type is TokType.LBRACKET:
+            expr = None
+            
+            self._consume(TokType.LBRACKET)
+            expr = self._expr()
+            self._consume(TokType.RBRACKET)
+            
+            return expr
         else:
+            raise ParseError("Got " + str(self.look.t_type) + " what happened?")
+    
+    def _consume(self, t_type):
+        if self.look.t_type is t_type:
             self._next()
+        else:
+            raise ParseError("Expected " + str(t_type) + ", but got " + str(self.look.t_type))
     
     def _next(self):
-        if self.lex.done:
-            return
-        self.look = self.lex.scan()
+        if not self.lex.done:
+            self.look = self.lex.scan()
