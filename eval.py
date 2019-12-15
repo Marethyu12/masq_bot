@@ -18,7 +18,7 @@ supported_funcs = ["pow",
                    "tan",
                    "asin",
                    "acos",
-                   "atan",]
+                   "atan"]
 
 class TokType(enum.Enum):
     REAL_NUM = 0
