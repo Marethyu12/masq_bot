@@ -40,6 +40,8 @@ async def tdynws(ctx):
     
     top_today_articles = soup.find(class_="leading-articles")
     
+    await ctx.send("```")
+    
     for article in top_today_articles.find_all("article"):
         a = article.find("a")
         link = a["href"]
@@ -48,6 +50,8 @@ async def tdynws(ctx):
             await ctx.send(get_content(url[:-5] + link))
         except:
             continue
+    
+    await ctx.send("```")
 
 @client.command(pass_context=True)
 async def tictactoe(ctx, arg=None):
