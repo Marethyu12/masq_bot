@@ -53,10 +53,10 @@ def get_content(link):
     content = ""
     
     content += "-" * 72 + "\n"
-    content += "**HEADLINE:** " + headline + "\n**AUTHOR:** " + author + "\n**WHEN:** " + when + "\n\n"
-    content += "**FULL ARTICLE:**\n"
+    content += "HEADLINE: " + headline + "\nAUTHOR: " + author + "\nWHEN: " + when + "\n\n"
+    content += "FULL ARTICLE:\n"
     content += formatted + "\n"
-    content += "**SUMMARY:**"
+    content += "SUMMARY:"
     content += summarizer.summarize(formatted.replace("\n", " ").replace("-", "")) + "\n"
     
     content += "-" * 72 + "\n\n"
