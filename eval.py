@@ -164,15 +164,15 @@ class RealNumber(ASTNode):
         return self.fvalue
 
 class FunctionCall(ASTNode):
-    def __init__(self, fname, expr1, expr2):
+    def __init__(self, fname, param1, param2):
         self.fname = fname
-        self.expr1 = expr1
-        self.expr2 = expr2
+        self.param1 = param1
+        self.param2 = param2
     
     def reduce(self):
-        if self.expr2 is not None:
-            return math.__dict__[self.fname](self.expr1.reduce(), self.expr2.reduce())
-        return math.__dict__[self.fname](self.expr1.reduce())
+        if self.param2 is not None:
+            return math.__dict__[self.fname](self.param1.reduce(), self.param2.reduce())
+        return math.__dict__[self.fname](self.param1.reduce())
 
 class UnaryOperator(ASTNode):
     def __init__(self, is_minus, expr):
