@@ -295,13 +295,13 @@ class ExpressionParser:
             
             return expr
         else:
-            raise ParseError("Got " + str(self.look.t_type) + " what happened?")
+            raise ParseError("Syntax Error: unexpected " + str(self.look.t_type))
     
     def _consume(self, t_type):
         if self.look.t_type is t_type:
             self._next()
         else:
-            raise ParseError("Expected " + str(t_type) + ", but got " + str(self.look.t_type))
+            raise ParseError("Syntax Error: expected " + str(t_type) + ", but got " + str(self.look.t_type))
     
     def _next(self):
         if not self.lex.done:
