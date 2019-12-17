@@ -6,6 +6,7 @@ from bs4 import BeautifulSoup
 from discord.ext import commands
 from tdynws import get_content
 from tictactoe import GameController
+from eval import eval
 
 cmd_prefix = "!masq "
 token = "NjU0MTQzNzM1ODgxNDAwMzIx.XfBQ5A.dvoavyYMFuzb5J9Jp3e3-r0AR7E"
@@ -23,11 +24,12 @@ async def hi(ctx):
 async def halpme(ctx):
     help_msg = ("**Usage:** `!masq [command] [optional arguments]`\n\n"
                  "**List of commands:**\n\n"
-                 "- `hi` Send me a 'hi' message\n\n"
-                 "- `halpme` Display this info\n\n"
-                 "- `tdynws` Fetch top news articles from Burnaby Now\n\n"
+                 "- `hi` Send me a 'hi' message.\n\n"
+                 "- `halpme` Display this info.\n\n"
+                 "- `tdynws` Fetch top news articles from Burnaby Now.\n\n"
                  "- `tictactoe` `[difficulty]` Play a game of Tic Tac Toe with me.\n   difficulty options: `1` for easy `2` for medium `3` for hard `4` for impossible\n   example: `!masq tictactoe 4`\n\n"
-                 "- `potassium` Make bot offline (Only Jimmy can use it due to obvious reasons)\n")
+                 "- `eval` `[math expression]` Evaluates and returns the final value of the given expression.\n   example: `!masq eval 3 * (1 / (5 - -pow(3.14, exp(34.234))) * atan(0.1)) + log2(30.1)`\n   Supported functions: `pow, sqrt, abs, floor, ceil, log2, log10, exp, sin, cos, tan, asin, acos, atan`\n\n"
+                 "- `potassium` Make bot offline. (Only Jimmy can use it due to obvious reasons)\n")
     
     await ctx.send(help_msg)
 
@@ -63,7 +65,7 @@ async def tictactoe(ctx, arg=None):
     gc = GameController("X", difficulty)
     
     await ctx.send("**GAME START!**\n_ _")
-    await ctx.send("To enter your move, input it in this format: `[row] [col]` Note that the index of the top left square is `(0, 0)` and the index of the bottom right square is `(2, 2)`\nYou have a minute to make a move\nType \"I QUIT!\" to quit the game!\n_ _")
+    await ctx.send("To enter your move, input it in this format: `[row] [col]`. Note that the index of the top left square is `(0, 0)` and the index of the bottom right square is `(2, 2)`.\nYou have a minute to make a move.\nType \"I QUIT!\" to quit the game!\n_ _")
     await ctx.send(gc.board)
     
     def check(author):
@@ -118,6 +120,16 @@ async def tictactoe(ctx, arg=None):
     await ctx.send("_ _\n**GAME OVER!**")
 
 @client.command(pass_context=True)
+async def eval(ctx, *args):
+    if len(args) == 0:
+        return
+    
+    value = eval(" ".join(args))
+    print(value)
+    
+    await ctx.send("```" + str(value) + "```")
+
+@client.command(pass_context=True)
 async def potassium(ctx):
     if ctx.message.author.id == jimmys_id:
         await ctx.send("Goodbye!")
@@ -125,7 +137,7 @@ async def potassium(ctx):
     else:
         await ctx.send("Goodbye! Oh wait... you're not Jimmy so never mind")
 
-# TODO: math eval, random art, background task run, bot description, and feature request
+# TODO: math eval, random art, background task run, bot description, and feature request, handle unknown cmd
 
 @client.event
 async def on_ready():
