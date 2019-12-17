@@ -50,15 +50,15 @@ def get_content(link):
     
     formatted = format(paragraphs)
     
-    content = ""
+    content = "```"
     
     content += "-" * 72 + "\n"
     content += "HEADLINE: " + headline + "\nAUTHOR: " + author + "\nWHEN: " + when + "\n\n"
     content += "FULL ARTICLE:\n"
     content += formatted + "\n"
-    content += "SUMMARY:"
+    content += "SUMMARY:\n"
     content += summarizer.summarize(formatted.replace("\n", " ").replace("-", "")) + "\n"
     
-    content += "-" * 72 + "\n\n"
+    content += "-" * 72 + "\n\n```"
     
     return content
