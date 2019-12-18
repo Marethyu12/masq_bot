@@ -137,10 +137,6 @@ async def potassium(ctx):
 # TODO: randomart, fetchmemes (get and post top 3 reddit memes; might be helpful: https://praw.readthedocs.io/en/latest/getting_started/quick_start.html), bot description
 
 @client.event
-async def on_ready():
-    print("Logged in as Masquerade!")
-
-@client.event
 async def on_command_error(ctx, error):
     await ctx.send("``` ERROR: " + str(error) + "```")
 
