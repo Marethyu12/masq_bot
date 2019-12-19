@@ -11,7 +11,7 @@ from ep import MiniLexer, ExpressionParser
 
 dct = None
 
-with open("data.json", "r") as json_file:
+with open("config.json", "r") as json_file:
     dct = json.load(json_file)
 
 cmd_prefix = "!masq "
