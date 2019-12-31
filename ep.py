@@ -18,16 +18,19 @@ supported_funcs = ["pow",
                    "acos",
                    "atan"]
 
+supported_consts = ["e", "pi", "phi"]
+
 class TokType(enum.Enum):
     REAL_NUM = 0
     OPERATOR = 1
     UNARY_OP = 2
     FUNCTION = 3
-    UNK_FUNC = 4
-    LBRACKET = 5
-    RBRACKET = 6
-    COMMA_TK = 7
-    UNKNOWNT = 8
+    CONST_TK = 4
+    UNK_IDENT = 5
+    LBRACKET = 6
+    RBRACKET = 7
+    COMMA_TK = 8
+    UNKNOWNT = 9
 
 class Token:
     def __init__(self, t_type, value):
@@ -40,7 +43,7 @@ class MiniLexer:
         self.idx = -1
         self.peek = None
         self.prev_ttype = None
-        self.ht = {}
+        self.symtab = {}
         self.done = False
         self._init_dict()
         self._advance()
@@ -93,17 +96,17 @@ class MiniLexer:
             return Token(TokType.REAL_NUM, str(value))
         
         if self.peek.isalpha():
-            func = ""
+            ident = ""
             
             while self.peek.isalnum():
-                func += self.peek
+                ident += self.peek
                 self._advance()
             
-            if func in self.ht:
-                return self.ht[func]
+            if ident in self.symtab:
+                return self.symtab[ident]
             
-            self.prev_ttype = TokType.UNK_FUNC
-            return Token(TokType.UNK_FUNC, func)
+            self.prev_ttype = TokType.UNK_IDENT
+            return Token(TokType.UNK_IDENT, ident)
         
         if self.peek is "(":
             self.prev_ttype = TokType.LBRACKET
@@ -144,7 +147,10 @@ class MiniLexer:
     
     def _init_dict(self):
         for func in supported_funcs:
-            self.ht[func] = Token(TokType.FUNCTION, func)
+            self.symtab[func] = Token(TokType.FUNCTION, func)
+        
+        for const in supported_consts:
+            self.symtab[const] = Token(TokType.CONST_TK, const)
 
 class ASTNode(ABC):
     def __init__(self):
@@ -171,6 +177,18 @@ class FunctionCall(ASTNode):
         if self.param2 is not None:
             return math.__dict__[self.fname](self.param1.reduce(), self.param2.reduce())
         return math.__dict__[self.fname](self.param1.reduce())
+
+class MathConstant(ASTNode):
+    def __init__(self, cname):
+        self.cname = cname
+    
+    def reduce(self):
+        if self.cname is "e":
+            return 2.718281828459045
+        elif self.cname is "pi":
+            return 3.141592653589793
+        else: # cname is "phi"
+            return 1.618033988749895
 
 class UnaryOperator(ASTNode):
     def __init__(self, is_minus, expr):
@@ -268,6 +286,10 @@ class ExpressionParser:
             self._consume(TokType.RBRACKET)
             
             return FunctionCall(fname, expr1, expr2)
+        elif self.look.t_type is TokType.CONST_TK:
+            cname = self.look.value
+            self._consume(TokType.CONST_TK)
+            return MathConstant(cname)
         elif self.look.t_type is TokType.UNARY_OP:
             unary_op = None
             is_minus = self.look.value is "-"
@@ -306,4 +328,4 @@ class ExpressionParser:
             self.look = self.lex.scan()
 
 if __name__ == "__main__":
-    print(ExpressionParser(MiniLexer("-4 * (1.2445 + -exp(3) * 9.0) / cos(0.2345) + pow(2, 3.3442) - -tan(0.1) * -pow(exp(2), -sqrt(3458935.8678) - 34.234) - (4 + 7 * pow(5.1, 10.3)) / atan(-104545.035) + log10(10)")).parse())
+    print(ExpressionParser(MiniLexer("-4 * (1.2445 + -exp(3) * 9.0) / cos(0.2345) + pow(2, 3.3442) - -tan(0.1) * -pow(exp(2), -sqrt(3458935.8678) - 34.234) - (4 + 7 * pow(5.1, 10.3)) / atan(-104545.035) + log10(10) - e + pi")).parse())

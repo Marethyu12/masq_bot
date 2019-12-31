@@ -33,9 +33,9 @@ async def halpme(ctx):
                  "- `hi` Send me a 'hi' message.\n\n"
                  "- `halpme` Display this info.\n\n"
                  "- `tdynws` Fetch top news articles from Burnaby Now.\n\n"
-                 "- `tictactoe` `[difficulty]` Play a game of Tic Tac Toe with me.\n   difficulty options: `1` for easy `2` for medium `3` for hard `4` for impossible\n   example: `!masq tictactoe 4`\n\n"
-                 "- `eval` `[math expression]` Evaluates and returns the final value of the given expression.\n   example: `!masq eval 3 * (1 / (5 - -pow(1.034, exp(2.01))) * atan(0.1)) + log2(30.1)`\n   supported functions: `pow`, `sqrt`, `abs`, `floor`, `ceil`, `log2`, `log10`, `exp`, `sin`, `cos`, `tan`, `asin`, `acos`, `atan`\n\n"
-                 "- `potassium` Make bot offline. (Only Jimmy can use it due to obvious reasons)\n")
+                 "- `tictactoe` `[difficulty]` Play a game of Tic Tac Toe with me.\n   difficulty options: `1` for easy `2` for medium `3` for hard `4` for fuckin impossible\n   example: `!masq tictactoe 4`\n\n"
+                 "- `eval` `[math expression]` Evaluates and returns the final value of the given expression.\n   example: `!masq eval 3 * (1 / (5 - -pow(1.034, exp(2.01))) * atan(0.1)) + log2(30.1) - e + phi`\n   supported functions: `pow`, `sqrt`, `abs`, `floor`, `ceil`, `log2`, `log10`, `exp`, `sin`, `cos`, `tan`, `asin`, `acos`, `atan`\n   supported constants: `e`, `pi`, `phi` (golden ratio)\n\n"
+                 "- `potassium` Make bot offline. (Only Jimmy can use it due to obvious reasons lol)\n")
     
     await ctx.send(help_msg)
 
