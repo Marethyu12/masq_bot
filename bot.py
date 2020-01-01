@@ -134,9 +134,7 @@ async def potassium(ctx):
     else:
         await ctx.send("Goodbye! Oh wait... you're not Jimmy so never mind")
 
-# TODO: randomart, fetchmemes (get and post top 3 reddit memes; might be helpful: https://praw.readthedocs.io/en/latest/getting_started/quick_start.html), bot description
-
-@client.event
+        @client.event
 async def on_command_error(ctx, error):
     await ctx.send("``` ERROR: " + str(error) + "```")
 

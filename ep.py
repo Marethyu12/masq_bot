@@ -18,7 +18,9 @@ supported_funcs = ["pow",
                    "acos",
                    "atan"]
 
-supported_consts = ["e", "pi", "phi"]
+supported_consts = ["e",
+                    "pi",
+                    "phi"]
 
 class TokType(enum.Enum):
     REAL_NUM = 0
@@ -237,6 +239,7 @@ class ExpressionParser:
         
         <factor> ::= [ <unary op> ] <real number> |
                      [ <unary op> ] <function call> |
+                     [ <unary op> ] <math constant> |
                      [ <unary op> ] "(" <expression> ")"
         
         <function call> ::= <function name> "(" <expression> [ "," <expression> ] ")"
@@ -300,9 +303,7 @@ class ExpressionParser:
                 self._consume(TokType.LBRACKET)
                 unary_op = UnaryOperator(is_minus, self._expr())
                 self._consume(TokType.RBRACKET)
-            elif self.look.t_type is TokType.FUNCTION:
-                unary_op = UnaryOperator(is_minus, self._factor())
-            else: # self.look.t_type is TokType.REAL_NUM
+            else: # self.look.t_type is function, realnum, and mathconst
                 unary_op = UnaryOperator(is_minus, self._factor())
             
             return unary_op
