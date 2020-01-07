@@ -4,7 +4,7 @@ A general purpose Discord bot. It can do many things like displaying recent loca
 
 # How to run this bot?
 
-uh...
+[TODO]
 
 # List of features
 
@@ -13,5 +13,3 @@ uh...
 - Play Tic-tac-toe game (difficulty ranging from easy to impossible)
 
 - Evaluate math expressions that not only include numbers and standard operators ('+', '-', '\*', '/') but also include unary operators and various mathematical functions (like pow, log2, sin, exp)
-
-- Generates and displays random art
