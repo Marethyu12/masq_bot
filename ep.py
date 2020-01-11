@@ -294,19 +294,9 @@ class ExpressionParser:
             self._consume(TokType.CONST_TK)
             return MathConstant(cname)
         elif self.look.t_type is TokType.UNARY_OP:
-            unary_op = None
             is_minus = self.look.value is "-"
-            
             self._consume(TokType.UNARY_OP)
-            
-            if self.look.t_type is TokType.LBRACKET:
-                self._consume(TokType.LBRACKET)
-                unary_op = UnaryOperator(is_minus, self._expr())
-                self._consume(TokType.RBRACKET)
-            else: # self.look.t_type is function, realnum, and mathconst
-                unary_op = UnaryOperator(is_minus, self._factor())
-            
-            return unary_op
+            return UnaryOperator(is_minus, self._factor())
         elif self.look.t_type is TokType.LBRACKET:
             expr = None
             
